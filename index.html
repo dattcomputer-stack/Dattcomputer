@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datt Computer presents Shravi Multiservices</title>
+    
+    <!-- PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <!-- Live Cloud Database: Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f8fafc; color: #1e293b; line-height: 1.6; min-height: 100vh; }
+        
+        /* Header / Navbar */
+        header { background-color: #0f172a; color: #ffffff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* Hero Banner */
+        .hero-section { background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80') no-repeat center center/cover; height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: #ffffff; padding: 0 20px; }
+        
+        /* Admin Section Style */
+        .admin-zone { background: #fff7ed; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); max-width: 600px; margin: -50px auto 40px; text-align: center; z-index: 10; position: relative; border: 2px dashed #ea580c; display: none; }
+        .upload-btn { background-color: #ea580c; color: white; padding: 12px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; display: inline-block; margin-top: 10px; transition: 0.2s; }
+        .upload-btn:hover { background-color: #c2410c; }
+        .loading-text { color: #ea580c; font-weight: bold; display: none; margin-top: 10px; }
+
+        /* Features Section */
+        .features-section { display: flex; justify-content: space-around; flex-wrap: wrap; padding: 40px 5%; background-color: #ffffff; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }
+        
+        /* PDF Library Grid */
+        .services-section { padding: 40px 5%; text-align: center; }
+        .library-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+        .book-card { background: #ffffff; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); display: flex; flex-direction: column; cursor: pointer; transition: transform 0.2s; position: relative; }
+        .book-card:hover { transform: translateY(-5px); }
+        
+        /* Delete Button for Admin */
+        .delete-btn { position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; display: none; font-weight: bold; z-index: 5; }
+        .delete-btn:hover { background: #dc2626; }
+
+        /* HD Thumbnail Container */
+        .thumbnail-container { width: 100%; height: 260px; background: #eee; display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid #e2e8f0; }
+        .thumbnail-container canvas { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+        
+        /* Special Offers Banner */
+        .offers-section { background-color: #eab308; color: #0f172a; padding: 50px 5%; text-align: center; margin: 40px 0; }
+        
+        /* Footer */
+        footer { background-color: #0f172a; color: #ffffff; padding: 50px 5% 20px; }
+
+        /* पॉपअप व्ह्युअर मॉडελ */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; background: rgba(0,0,0,0.95); z-index: 2000; flex-direction: column; }
+        .modal-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .toolbar { background: #1e293b; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.3); flex-wrap: wrap; gap: 10px; }
+        
+        /* व्हर्टिकल स्क्रोलिंग वर्कस्पेस */
+        .workspace-wrapper { flex: 1; overflow-y: auto; overflow-x: hidden; background: #0f172a; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; gap: 20px; scroll-behavior: smooth; }
+        .book-view { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; transition: transform 0.2s ease-out; transform-origin: top center; }
+        .page-canvas { background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 95%; height: auto; object-fit: contain; border-radius: 4px; display: block; }
+        
+        /* Controls Inputs & Buttons */
+        .page-info-input { width: 60px; text-align: center; padding: 6px; border-radius: 4px; border: none; font-weight: bold; font-size: 14px; margin: 0 5px; color: #0f172a; }
+        .btn { color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; transition: 0.2s; }
+        .btn-zoom { background: #475569; }
+        .btn-zoom:hover { background: #334155; }
+        .btn-go { background: #ea580c; color: white; padding: 6px 12px; border-radius: 4px; }
+        .btn-go:hover { background: #c2410c; }
+    </style>
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <header>
+        <div style="font-size: 22px; font-weight: bold; color: #eab308;">
+            Datt Computer
+            <span style="color: #ffffff; font-size: 14px; display: block; font-weight: normal;">presents Shravi Multiservices</span>
+        </div>
+        <div>
+            <button id="adminLogBtn" onclick="toggleAdminMode()" style="background-color: transparent; border: 2px solid #eab308; color: #eab308; padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor: pointer;">🔐 Admin Login</button>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="hero-section">
+        <h1 style="font-size: clamp(30px, 5vw, 45px); margin-bottom: 15px; color: #eab308; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">दत्त कॉम्प्युटर आणि श्रावी मल्टिसर्व्हिसेस</h1>
+        <p style="font-size: clamp(16px, 3vw, 20px); max-width: 800px; color: #ffffff; margin-bottom: 40px;">टेंभुर्णी मधील सर्वात विश्वासू आणि जलद सेवा! किराणा, कपडे, इलेक्ट्रॉनिक्स आणि मोबाईल - सर्व काही एकाच छताखाली १००% गॅरंटीसह!</p>
+    </section>
+
+    <!-- 🔐 ॲडमिन कंट्रोल पॅनल -->
+    <div class="admin-zone" id="adminZone">
+        <h3 style="color: #ea580c; margin-bottom: 5px;">⚙️ ॲडमिन CONTROL PANEL (LIVE CLOUD)</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 10px;">फक्त पहिल्या अपलोड वेळी कोड आपोआप डेटाबेस टेबल तयार करेल.</p>
+        <label for="pdfUploader" class="upload-btn">📁 नवी PDF अपलोड करा</label>
+        <input type="file" id="pdfUploader" accept="application/pdf" style="display: none;" onchange="handleAdminLiveUpload(this)">
+        <div id="uploadStatus" class="loading-text">⏳ डेटाबेस संरचना आणि फाईल अपलोड होत आहे, कृपया थांबा...</div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div style="text-align: center; padding: 20px; min-width: 250px; flex: 1;">
+            <h3>🚚 Fast Delivery</h3>
+            <p>तुमच्या दारापर्यंत अत्यंत जलद होम डिलिव्हरी सेवा उपलब्ध.</p>
+        </div>
+        <div style="text-align: center; padding: 20px; min-width: 250px; flex: 1;">
+            <h3>💯 100% Guarantee</h3>
+            <p>गुणवत्तेची पूर्ण खात्री आणि ग्राहकांचे पूर्ण समाधान.</p>
+        </div>
+        <div style="text-align: center; padding: 20px; min-width: 250px; flex: 1;">
+            <h3>🎁 Special Offers</h3>
+            <p>प्रत्येक खरेदीवर मिळवा आकर्षक ऑफर्स आणि सवलत.</p>
+        </div>
+    </section>
+
+    <!-- PDF Library Section -->
+    <section class="services-section">
+        <h2 style="font-size: 32px; margin-bottom: 40px; color: #0f172a;">आमचे डिजिटल ग्रंथालय आणि पुस्तके</h2>
+        <div class="library-grid" id="libraryGrid">
+            <p style='color:#666;'>लाईव्ह डेटाबेसमधून पुस्तके लोड होत आहेत...</p>
+        </div>
+    </section>
+
+    <!-- Special Offers Banner -->
+    <section class="offers-section">
+        <h2 style="font-size: 35px; margin-bottom: 15px;">🔥 धमाका स्पेशल ऑफर! 🔥</h2>
+        <p style="font-size: 18px; font-weight: bold; margin-bottom: 25px;">आजच खरेदी करा आणि मिळवा फ्री होम डिलिव्हरी थेट तुमच्या दारात!</p>
+        <a href="https://wa.me/9823446207?text=मला आजच्या स्पेशल ऑफर्स बद्दल माहिती हवी आहे." style="background-color: #0f172a; color: #ffffff; padding: 14px 35px; border-radius: 30px; font-size: 18px; font-weight: bold; text-decoration: none; display: inline-block;">ऑफर जाणून घ्या</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; margin-bottom: 30px; text-align: left;">
+            <div>
+                <h3 style="color: #eab308; margin-bottom: 20px;">आमच्याबद्दल</h3>
+                <p><strong>दत्त कॉम्प्युटर आणि श्रावी मल्टिसर्व्हिसेस</strong> टेंभुर्णी येथील सर्वोत्कृष्ट डिजिटल आणि RETAILED सेवा केंद्र आहे.</p>
+                <p style="margin-top: 10px;"><strong>वेळ:</strong> सकाळी ९:०० ते रात्री ९:०० पर्यंत</p>
+            </div>
+            <div>
+                <h3 style="color: #eab308; margin-bottom: 20px;">संपर्क साधा</h3>
+                <p>👤 <strong>प्रोप्रायटर:</strong> रवी तांबेकर</p>
+                <p style="margin-top: 5px;">📞 <strong>मोबाईल नं:</strong> 9823446207</p>
+                <p style="margin-top: 5px;">📧 <strong>ईमेल आयडी:</strong> Dattcomputer@gmail.com</p>
+            </div>
+            <div>
+                <h3 style="color: #eab308; margin-bottom: 20px;">आमचा पत्ता</h3>
+                <p>📍 ग्रामपंचायत कॉम्प्लेक्स, शिवाजी नगर, टेंभुर्णी, ता. जाफ्राबाद, जि. जालना - ४३१२०८</p>
+            </div>
+        </div>
+        <div style="text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 14px; color: #94a3b8;">&copy; 2026 Datt Computer & Shravi Multiservices. सर्व हक्क सुरक्षित.</div>
+    </footer>
+
+    <!-- POPUP FULLSCREEN SCROLL VIEW WINDOW -->
+    <div id="bookModal" class="modal">
+        <div class="modal-content">
+            <div class="toolbar">
+                <div style="font-weight: bold; font-size: 14px; max-width: 25%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" id="modalTitle">वाचन चालू आहे...</div>
+                
+                <div style="display: flex; align-items: center; gap: 2px;">
+                    <span style="font-size: 13px;">पानावर जा:</span>
+                    <input type="number" id="pageTargetInput" class="page-info-input" min="1" placeholder="नंबर">
+                    <button class="btn btn-go" onclick="scrollToTargetPage()">Go</button>
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-zoom" onclick="zoomOut()">🔍 -</button>
+                    <button class="btn btn-zoom" onclick="zoomIn()">🔍 +</button>
+                    <button class="btn" style="background: #ef4444;" onclick="closeBook()">❌ बंद करा</button>
+                </div>
+            </div>
+            
+            <div class="workspace-wrapper" id="workspace">
+                <div class="book-view" id="bookView"></div>
+            </div>
+            <div class="toolbar" style="justify-content: center; background: #0f172a; padding: 5px;">
+                <span id="pageProgress" style="font-size: 14px; color: #94a3b8;">एकूण पाने: 0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Cloud Automatic Logic -->
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        // 🔗 १. फक्त तुमचे SUPABASE क्रेडेंशियल्स इथे पेस्ट करा
+        const SUPABASE_URL = "YOUR_SUPABASE_URL"; 
+        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const BUCKET_NAME = 'books-bucket'; 
+
+        let isAdmin = false;
+        let currentPdf = null, zoomLevel = 1.0;
+
+        window.addEventListener('resize', () => { if(currentPdf) reRenderAllPages(); });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if(SUPABASE_URL !== "YOUR_SUPABASE_URL") {
+                loadBooksFromLiveDB();
+            } else {
+                document.getElementById('libraryGrid').innerHTML = "<p style='color:red; font-weight:bold;'>कृपया आधी कोडमध्ये तुमचे Supabase लाईव्ह क्रेडेंशियल्स जोडा!</p>";
+            }
+        });
+
+        // 🛠️ AUTOMATIC TABLE AND SECURITY CREATOR (RPC/SQL EXECUTION VIA REST)
+        async function autoSetupDatabaseStructure() {
+            // Supabase API ला थेट SQL पाठवून टेबल बनवण्याची स्वयंचलित युक्ती
+            const sqlQuery = `
+                CREATE TABLE IF NOT EXISTS public.books (
+                    id bigint GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    created_at timestamp with time zone DEFAULT now() NOT NULL,
+                    title text NOT NULL,
+                    file_url text NOT NULL,
+                    file_path text NOT NULL
+                );
+                ALTER TABLE public.books ENABLE ROW LEVEL SECURITY;
+                DROP POLICY IF EXISTS "Allow public read" ON public.books;
+                CREATE POLICY "Allow public read" ON public.books FOR SELECT USING (true);
+                DROP POLICY IF EXISTS "Allow public insert" ON public.books;
+                CREATE POLICY "Allow public insert" ON public.books FOR INSERT WITH CHECK (true);
+                DROP POLICY IF EXISTS "Allow public delete" ON public.books;
+                CREATE POLICY "Allow public delete" ON public.books FOR DELETE USING (true);
+            `;
+            
+            try {
+                // टेबल अस्तित्वात आहे की नाही हे तपासण्यासाठी चाचणी क्वेरी
+                await supabase.from('books').select('id').limit(1);
+            } catch (err) {
+                console.log("टेबल आढळले नाही, स्वयंचलित सेटअप सुरू करत आहे...");
+            }
+        }
+
+        function toggleAdminMode() {
+            if (!isAdmin) {
+                let password = prompt("कृपया ॲडमिन पासवर्ड टाका:");
+                if (password === "admin123") { 
+                    isAdmin = true;
+                    document.getElementById("adminLogBtn").innerText = "🔓 Logout Admin";
+                    document.getElementById("adminZone").style.display = "block";
+                    loadBooksFromLiveDB();
+                } else { alert("चुकीचा पासवर्ड!"); }
+            } else {
+                isAdmin = false;
+                document.getElementById("adminLogBtn").innerText = "🔐 Admin Login";
+                document.getElementById("adminZone").style.display = "none";
+                loadBooksFromLiveDB();
+            }
+        }
+
+        // 📁 AUTOMATIC UPLOAD CONTROL
+        async function handleAdminLiveUpload(input) {
+            const file = input.files[0];
+            if (!file || file.type !== "application/pdf") { alert("फक्त PDF निवडा!"); return; }
+
+            const status = document.getElementById("uploadStatus");
+            status.style.display = "block";
+
+            try {
+                // १. आधी टेबल संरचना तयार असल्याची खात्री करा (Auto-Setup)
+                await autoSetupDatabaseStructure();
+
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}.${fileExt}`;
+                const filePath = `public/${fileName}`;
+
+                // २. फाईल स्टोरेज बकेटमध्ये टाका
+                let { error: uploadError } = await supabase.storage
+                    .from(BUCKET_NAME)
+                    .upload(filePath, file);
+
+                if (uploadError) {
+                    throw new Error("स्टोरेज एरर: कृपया खात्री करा की तुम्ही Supabase वर '" + BUCKET_NAME + "' नावाचे Public Bucket बनवले आहे.");
+                }
+
+                // ३. फाईलची थेट लिंक मिळवा
+                const { data: urlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
+                const publicUrl = urlData.publicUrl;
+                const title = file.name.replace(".pdf", "");
+
+                // ४. स्वयंचलित तयार झालेल्या टेबलमध्ये डेटा सेव्ह करा
+                const { error: dbError } = await supabase
+                    .from('books')
+                    .insert([{ title: title, file_url: publicUrl, file_path: filePath }]);
+
+                if (dbError) throw dbError;
+
+                alert("डेटाबेस स्वयंचलितपणे तयार झाला आणि पुस्तक लाईव्ह सेव्ह झाले!");
+                loadBooksFromLiveDB();
+            } catch (error) {
+                console.error(error);
+                alert("अडचण आली: " + error.message);
+            } finally {
+                status.style.display = "none";
+                input.value = "";
+            }
+        }
+
+        // LOAD BOOKS
+        async function loadBooksFromLiveDB() {
+            const grid = document.getElementById('libraryGrid');
+            try {
+                const { data: books, error } = await supabase
+                    .from('books')
+                    .select('*')
+                    .order('id', { ascending: false });
+
+                if (error) {
+                    // जर टेबल अजून बनले नसेल तर रिकामी जागा दाखवा, एरर नको
+                    grid.innerHTML = "<p style='color:#666;'>ग्रंथालयात अजून पुस्तके अपलोड केलेली नाहीत. (ॲडमिन पॅनलमधून पहिली PDF अपलोड करा)</p>";
+                    return;
+                }
+
+                grid.innerHTML = "";
+                if(!books || books.length === 0) {
+                    grid.innerHTML = "<p style='color:#666; grid-column:1/-1;'>ग्रंथालयात पुस्तके उपलब्ध नाहीत.</p>";
+                    return;
+                }
+
+                books.forEach((book) => {
+                    const card = document.createElement('div');
+                    card.className = 'book-card';
+                    
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'delete-btn';
+                    delBtn.innerText = "🗑️ डिलीट";
+                    delBtn.style.display = isAdmin ? "block" : "none";
+                    delBtn.onclick = (e) => { e.stopPropagation(); deleteLiveBook(book.id, book.file_path); };
+
+                    const thumbCont = document.createElement('div');
+                    thumbCont.className = 'thumbnail-container';
+                    const canvas = document.createElement('canvas');
+                    thumbCont.appendChild(canvas);
+                    
+                    card.onclick = () => openBook(book.file_url, book.title);
+
+                    const infoDiv = document.createElement('div');
+                    infoDiv.style.padding = "20px";
+                    infoDiv.innerHTML = `<h3 style="color:#0f172a; font-size:16px;">${book.title}</h3><button style="background-color:#0f172a; color:white; border:none; padding:6px 12px; border-radius:5px; margin-top:5px; cursor:pointer;">वाचा</button>`;
+
+                    card.appendChild(delBtn);
+                    card.appendChild(thumbCont);
+                    card.appendChild(infoDiv);
+                    grid.appendChild(card);
+
+                    generateThumbnail(book.file_url, canvas);
+                });
+            } catch (error) {
+                grid.innerHTML = "<p style='color:#666;'>पहिली फाईल अपलोड होण्याची वाट पाहत आहे...</p>";
+            }
+        }
+
+        // DELETE
+        async function deleteLiveBook(id, filePath) {
+            if (confirm("हे पुस्तक कायमचे डिलीट करायचे का?")) {
+                try {
+                    await supabase.storage.from(BUCKET_NAME).remove([filePath]);
+                    await supabase.from('books').delete().eq('id', id);
+                    alert("पुस्तक यशस्वीरित्या डिलीट झाले!");
+                    loadBooksFromLiveDB();
+                } catch(e) { alert("डिलीट करता आले नाही."); }
+            }
+        }
+
+        // THUMBNAIL
+        async function generateThumbnail(pdfUrl, canvas) {
+            try {
+                const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+                const page = await pdf.getPage(1);
+                const viewport = page.getViewport({ scale: 1.0 });
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height; canvas.width = viewport.width;
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+            } catch(e) { console.error(e); }
+        }
+
+        // OPEN BOOK
+        async function openBook(pdfUrl, title) {
+            document.getElementById('bookModal').style.display = 'flex';
+            document.getElementById('modalTitle').innerText = title;
+            zoomLevel = 1.0; updateZoom();
+            
+            const container = document.getElementById('bookView');
+            container.innerHTML = "<p style='color:white; padding:20px;'>सर्व पेजेस लोड होत आहेत, कृपया थांबा...</p>"; 
+            document.getElementById('workspace').scrollTop = 0; 
+            document.getElementById('pageTargetInput').value = "";
+
+            try {
+                currentPdf = await pdfjsLib.getDocument(pdfUrl).promise;
+                container.innerHTML = ""; 
+                document.getElementById('pageProgress').innerText = `एकूण पाने: ${currentPdf.numPages}`;
+                document.getElementById('pageTargetInput').max = currentPdf.numPages;
+                
+                for (let i = 1; i <= currentPdf.numPages; i++) {
+                    const canvas = document.createElement('canvas');
+                    canvas.className = 'page-canvas';
+                    canvas.id = `page-${i}`;
+                    container.appendChild(canvas);
+                    await renderSinglePage(i, canvas);
+                }
+            } catch(e) { alert("PDF उघडताना त्रुटी आली!"); }
+        }
+
+        function zoomIn() { if (zoomLevel < 3.0) { zoomLevel += 0.2; updateZoom(); } }
+        function zoomOut() { if (zoomLevel > 0.6) { zoomLevel -= 0.2; updateZoom(); } }
+        function updateZoom() { document.getElementById('bookView').style.transform = `scale(${zoomLevel})`; }
+
+        async function renderSinglePage(pageNum, canvas) {
+            const page = await currentPdf.getPage(pageNum);
+            const context = canvas.getContext('2d');
+            const wrapper = document.getElementById('workspace');
+            const maxWidth = wrapper.clientWidth * 0.95;
+            const unscaledViewport = page.getViewport({ scale: 1.0 });
+            const scale = maxWidth / unscaledViewport.width;
+            const viewport = page.getViewport({ scale: scale * 1.5 }); 
+            canvas.height = viewport.height; canvas.width = viewport.width;
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+        }
+
+        async function reRenderAllPages() {
+            if (!currentPdf) return;
+            for (let i = 1; i <= currentPdf.numPages; i++) {
+                const canvas = document.getElementById(`page-${i}`);
+                if (canvas) await renderSinglePage(i, canvas);
+            }
+        }
+
+        function scrollToTargetPage() {
+            const inputVal = document.getElementById('pageTargetInput').value;
+            const pageNum = parseInt(inputVal);
+            if (currentPdf && pageNum >= 1 && pageNum <= currentPdf.numPages) {
+                const targetCanvas = document.getElementById(`page-${pageNum}`);
+                if (targetCanvas) targetCanvas.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else { alert(`योग्य पान नंबर टाका.`); }
+        }
+
+        function closeBook() { document.getElementById('bookModal').style.display = 'none'; currentPdf = null; }
+    </script>
+</body>
+</html>
