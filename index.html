@@ -57,7 +57,9 @@
         /* व्हर्टिकल स्क्रोलिंग वर्कस्पेस */
         .workspace-wrapper { flex: 1; overflow-y: auto; overflow-x: hidden; background: #0f172a; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; gap: 20px; scroll-behavior: smooth; }
         .book-view { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; transition: transform 0.2s ease-out; transform-origin: top center; }
-        .page-canvas { background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 95%; height: auto; object-fit: contain; border-radius: 4px; display: block; }
+        
+        /* HD PDF Rendering CSS Modifications */
+        .page-canvas { background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 95%; height: auto !important; max-height: none; display: block; border-radius: 4px; }
         
         /* Controls Inputs & Buttons */
         .page-info-input { width: 60px; text-align: center; padding: 6px; border-radius: 4px; border: none; font-weight: bold; font-size: 14px; margin: 0 5px; color: #0f172a; }
@@ -77,7 +79,6 @@
             <span style="color: #ffffff; font-size: 14px; display: block; font-weight: normal;">presents Shravi Multiservices</span>
         </div>
         <div>
-            <!-- Admin Login Buton -->
             <button id="adminLogBtn" onclick="toggleAdminMode()" style="background-color: transparent; border: 2px solid #eab308; color: #eab308; padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor: pointer;">🔐 Admin Login</button>
         </div>
     </header>
@@ -91,7 +92,7 @@
     <!-- 🔐 ॲडमिन कंट्रोल पॅनल -->
     <div class="admin-zone" id="adminZone">
         <h3 style="color: #ea580c; margin-bottom: 5px;">⚙️ ॲडमिन CONTROL PANEL (LIVE CLOUD)</h3>
-        <p style="font-size: 13px; color: #666; margin-bottom: 10px;">फक्त पहिल्या अपलोड वेळी कोड आपोआप डेटाबेस टेबल तयार करेल.</p>
+        <p style="font-size: 13px; color: #666; margin-bottom: 10px;">फक्त पहिल्या अपलोड वेळी कोड आपो自动化 डेटाबेस टेबल तयार करेल.</p>
         <label for="pdfUploader" class="upload-btn">📁 नवी PDF अपलोड करा</label>
         <input type="file" id="pdfUploader" accept="application/pdf" style="display: none;" onchange="handleAdminLiveUpload(this)">
         <div id="uploadStatus" class="loading-text">⏳ डेटाबेस संरचना आणि फाईल अपलोड होत आहे, कृपया थांबा...</div>
@@ -128,7 +129,7 @@
         <a href="https://wa.me/9823446207?text=मला आजच्या स्पेशल ऑफर्स बद्दल माहिती हवी आहे." style="background-color: #0f172a; color: #ffffff; padding: 14px 35px; border-radius: 30px; font-size: 18px; font-weight: bold; text-decoration: none; display: inline-block;">ऑफर जाणून घ्या</a>
     </section>
 
-    <!-- Footer -->
+    <!-- Footer Section -->
     <footer>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; margin-bottom: 30px; text-align: left;">
             <div>
@@ -148,10 +149,12 @@
             </div>
         </div>
 
-        <!-- 👁️ LIVE VISITOR COUNTER SECTION -->
-        <div style="text-align: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; display: inline-block; min-width: 200px;">
-            <span style="color: #94a3b8; font-size: 14px; display: block;">Total Visitors</span>
-            <span id="visitorCount" style="color: #eab308; font-size: 24px; font-weight: bold; letter-spacing: 2px;">⏳</span>
+        <!-- LIVE VISITOR COUNTER CENTERED -->
+        <div style="display: flex; justify-content: center; width: 100%; margin-bottom: 20px;">
+            <div style="text-align: center; background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 10px; min-width: 200px; border: 1px solid rgba(255,255,255,0.1);">
+                <span style="color: #94a3b8; font-size: 14px; display: block;">Total Visitors</span>
+                <span id="visitorCount" style="color: #eab308; font-size: 24px; font-weight: bold; letter-spacing: 2px;">⏳</span>
+            </div>
         </div>
 
         <div style="text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 14px; color: #94a3b8;">&copy; 2026 Datt Computer & Shravi Multiservices. सर्व हक्क सुरक्षित.</div>
@@ -185,11 +188,11 @@
         </div>
     </div>
 
-    <!-- JavaScript Cloud Automatic Logic -->
+    <!-- JavaScript Cloud Logic -->
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        // 🔗 तुमच्या अचूक प्रोजेक्ट क्रेडेंशियल्ससह जोडले आहे:
+        // 🔗 Supabase Credentials
         const SUPABASE_URL = "https://zvoycsvwhoacsgnwfbzo.supabase.co"; 
         const SUPABASE_ANON_KEY = "sb_publishable_pyS4Ay-NVllUkj0acEu9Aw_HbR25Xv2";
         
@@ -203,7 +206,7 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             loadBooksFromLiveDB();
-            updateVisitorCounter(); // काउंटर सुरु करा
+            updateVisitorCounter();
         });
 
         // 🔓 ADMIN TOGGLE
@@ -242,7 +245,7 @@
                     .upload(filePath, file);
 
                 if (uploadError) {
-                    throw new Error("स्टोरेज एरर: कृपया खात्री करा की तुम्ही Supabase वर '" + BUCKET_NAME + "' नावाचे Public Bucket बनवले आहे आणि त्याचे Public बटण चालू केले आहे.");
+                    throw new Error("स्टोरेज एरर: कृपया बकेटचे नाव आणि पब्लीक सेटिंग तपासा.");
                 }
 
                 const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(filePath);
@@ -315,7 +318,7 @@
                     generateThumbnail(book.file_url, canvas);
                 });
             } catch (error) {
-                grid.innerHTML = "<p style='color:#666;'>डेटाबेस कनेक्शन तपासत आहे...</p>";
+                grid.innerHTML = "<p style='color:#666;'>कनेक्शन तपासत आहे...</p>";
             }
         }
 
@@ -331,7 +334,7 @@
             }
         }
 
-        // THUMBNAIL
+        // THUMBNAIL (LOW RESOLUTION FOR GRID FOR FAST LOADING)
         async function generateThumbnail(pdfUrl, canvas) {
             try {
                 const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
@@ -343,14 +346,14 @@
             } catch(e) { console.error(e); }
         }
 
-        // OPEN BOOK
+        // OPEN BOOK (HD HIGH-RESOLUTION ENGINE)
         async function openBook(pdfUrl, title) {
             document.getElementById('bookModal').style.display = 'flex';
             document.getElementById('modalTitle').innerText = title;
             zoomLevel = 1.0; updateZoom();
             
             const container = document.getElementById('bookView');
-            container.innerHTML = "<p style='color:white; padding:20px;'>सर्व पेजेस लोड होत आहेत, कृपया थांबा...</p>"; 
+            container.innerHTML = "<p style='color:white; padding:20px;'>सर्व पेजेस HD मध्ये लोड होत आहेत, कृपया थांबा...</p>"; 
             document.getElementById('workspace').scrollTop = 0; 
             document.getElementById('pageTargetInput').value = "";
 
@@ -374,16 +377,33 @@
         function zoomOut() { if (zoomLevel > 0.6) { zoomLevel -= 0.2; updateZoom(); } }
         function updateZoom() { document.getElementById('bookView').style.transform = `scale(${zoomLevel})`; }
 
+        // 🌟 ULTRA-HD RENDERING LOGIC (MOBILE BLUR FIX)
         async function renderSinglePage(pageNum, canvas) {
             const page = await currentPdf.getPage(pageNum);
             const context = canvas.getContext('2d');
             const wrapper = document.getElementById('workspace');
+            
             const maxWidth = wrapper.clientWidth * 0.95;
             const unscaledViewport = page.getViewport({ scale: 1.0 });
-            const scale = maxWidth / unscaledViewport.width;
-            const viewport = page.getViewport({ scale: scale * 1.5 }); 
-            canvas.height = viewport.height; canvas.width = viewport.width;
-            await page.render({ canvasContext: context, viewport: viewport }).promise;
+            const fitScale = maxWidth / unscaledViewport.width;
+            
+            // 🚀 रिझोल्यूशन २ पट (2x HD) वाढवले जेणेकरून अक्षर बारीक असताना झूम केल्यावर ब्लर दिसणार नाही
+            const hdRenderingScale = fitScale * 2.0; 
+            const viewport = page.getViewport({ scale: hdRenderingScale });
+            
+            // कॅनव्हासचे डिझाईन गुणोत्तर न बदलता अंतर्गत पिक्सेल्स वाढवले
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            canvas.style.width = `${maxWidth}px`;
+            
+            // रेंडरिंग दरम्यान स्पष्टता वाढवण्यासाठी पर्याय सक्रिय केला
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport,
+                intent: 'print' // उच्चतम प्रिंट कॉलिटी टेक्स्ट आउटपुटसाठी
+            };
+            
+            await page.render(renderContext).promise;
         }
 
         async function reRenderAllPages() {
@@ -394,18 +414,31 @@
             }
         }
 
+        // 🌟 ZOOM-FRIENDLY SMOOTH SCROLLING
         function scrollToTargetPage() {
             const inputVal = document.getElementById('pageTargetInput').value;
             const pageNum = parseInt(inputVal);
+            
             if (currentPdf && pageNum >= 1 && pageNum <= currentPdf.numPages) {
                 const targetCanvas = document.getElementById(`page-${pageNum}`);
-                if (targetCanvas) targetCanvas.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else { alert(`योग्य पान नंबर टाका.`); }
+                const workspace = document.getElementById('workspace');
+                
+                if (targetCanvas && workspace) {
+                    // झूम स्केटिंगनुसार अचूक अंतर मोजून नेव्हिगेट करणे
+                    const targetTop = targetCanvas.offsetTop * zoomLevel;
+                    workspace.scrollTo({
+                        top: targetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            } else { 
+                alert(`योग्य पान नंबर टाका. (१ ते ${currentPdf ? currentPdf.numPages : '?'})`); 
+            }
         }
 
         function closeBook() { document.getElementById('bookModal').style.display = 'none'; currentPdf = null; }
 
-        // 👁️ LIVE VISITOR COUNTER LOGIC
+        // LIVE VISITOR COUNTER
         async function updateVisitorCounter() {
             try {
                 const { data, error } = await supabaseClient.from('visitors').select('*').single();
