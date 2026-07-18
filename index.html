@@ -70,14 +70,14 @@
 </head>
 <body>
 
-    <!-- Header / Navbar (तुमचे मूळ डिझाईन परत आणले) -->
+    <!-- Header / Navbar -->
     <header>
         <div style="font-size: 22px; font-weight: bold; color: #eab308;">
             Datt Computer
             <span style="color: #ffffff; font-size: 14px; display: block; font-weight: normal;">presents Shravi Multiservices</span>
         </div>
         <div>
-            <!-- मूळ 🔐 Admin Login बटण उजव्या कोपऱ्यात -->
+            <!-- Admin Login Buton -->
             <button id="adminLogBtn" onclick="toggleAdminMode()" style="background-color: transparent; border: 2px solid #eab308; color: #eab308; padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor: pointer;">🔐 Admin Login</button>
         </div>
     </header>
@@ -85,7 +85,7 @@
     <!-- Hero Banner -->
     <section class="hero-section">
         <h1 style="font-size: clamp(30px, 5vw, 45px); margin-bottom: 15px; color: #eab308; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">दत्त कॉम्प्युटर आणि श्रावी मल्टिसर्व्हिसेस</h1>
-        <p style="font-size: clamp(16px, 3vw, 20px); max-width: 800px; color: #ffffff; margin-bottom: 40px;">टेंभुर्णी मधील सर्वात विश्वासू आणि जलद सेवा! - सर्व काही एकाच छताखाली १००% गॅरंटीसह! तसेच पी. जी. तांबेकर सर यांचे मेळा एक संग्रह पुस्तक आमच्या WebPage वर पहिल्यांदाच PDF मध्ये वाचण्यासाठी उपलब्ध ... </p>
+        <p style="font-size: clamp(16px, 3vw, 20px); max-width: 800px; color: #ffffff; margin-bottom: 40px;">टेंभुर्णी मधील सर्वात विश्वासू आणि जलद सेवा! किराणा, कपडे, इलेक्ट्रॉनिक्स आणि मोबाईल - सर्व काही एकाच छताखाली १००% गॅरंटीसह!</p>
     </section>
 
     <!-- 🔐 ॲडमिन कंट्रोल पॅनल -->
@@ -147,6 +147,13 @@
                 <p>📍 grampanchayat complex shivaji nagar tembhurni ta jafrabad dist jalna 431208</p>
             </div>
         </div>
+
+        <!-- 👁️ LIVE VISITOR COUNTER SECTION -->
+        <div style="text-align: center; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; display: inline-block; min-width: 200px;">
+            <span style="color: #94a3b8; font-size: 14px; display: block;">Total Visitors</span>
+            <span id="visitorCount" style="color: #eab308; font-size: 24px; font-weight: bold; letter-spacing: 2px;">⏳</span>
+        </div>
+
         <div style="text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 14px; color: #94a3b8;">&copy; 2026 Datt Computer & Shravi Multiservices. सर्व हक्क सुरक्षित.</div>
     </footer>
 
@@ -182,10 +189,8 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        // 🚨 १. तुमची URL फक्त खालील एका ठिकाणी व्यवस्थित बदलून घ्या 🚨
+        // 🔗 तुमच्या अचूक प्रोजेक्ट क्रेडेंशियल्ससह जोडले आहे:
         const SUPABASE_URL = "https://zvoycsvwhoacsgnwfbzo.supabase.co"; 
-        
-        // तुमची शोधलेली खरी 'Publishable Key' मी इथे आधीच टाकून दिली आहे!
         const SUPABASE_ANON_KEY = "sb_publishable_pyS4Ay-NVllUkj0acEu9Aw_HbR25Xv2";
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -197,21 +202,9 @@
         window.addEventListener('resize', () => { if(currentPdf) reRenderAllPages(); });
 
         document.addEventListener("DOMContentLoaded", () => {
-            if(SUPABASE_URL !== "YOUR_SUPABASE_PROJECT_URL_HERE") {
-                loadBooksFromLiveDB();
-            } else {
-                document.getElementById('libraryGrid').innerHTML = "<p style='color:red; font-weight:bold;'>कृपया आधी कोडमध्ये तुमची Supabase URL जोडा!</p>";
-            }
+            loadBooksFromLiveDB();
+            updateVisitorCounter(); // काउंटर सुरु करा
         });
-
-        // AUTO SETUP TABLE STRUCTURE
-        async function autoSetupDatabaseStructure() {
-            try {
-                await supabaseClient.from('books').select('id').limit(1);
-            } catch (err) {
-                console.log("टेबल तपासणी...");
-            }
-        }
 
         // 🔓 ADMIN TOGGLE
         function toggleAdminMode() {
@@ -240,8 +233,6 @@
             status.style.display = "block";
 
             try {
-                await autoSetupDatabaseStructure();
-
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${Date.now()}.${fileExt}`;
                 const filePath = `public/${fileName}`;
@@ -324,7 +315,7 @@
                     generateThumbnail(book.file_url, canvas);
                 });
             } catch (error) {
-                grid.innerHTML = "<p style='color:#666;'>कनेक्शन तपासत आहे...</p>";
+                grid.innerHTML = "<p style='color:#666;'>डेटाबेस कनेक्शन तपासत आहे...</p>";
             }
         }
 
@@ -413,6 +404,24 @@
         }
 
         function closeBook() { document.getElementById('bookModal').style.display = 'none'; currentPdf = null; }
+
+        // 👁️ LIVE VISITOR COUNTER LOGIC
+        async function updateVisitorCounter() {
+            try {
+                const { data, error } = await supabaseClient.from('visitors').select('*').single();
+                if (error || !data) {
+                    await supabaseClient.from('visitors').insert([{ count: 1 }]);
+                    document.getElementById('visitorCount').innerText = "1";
+                } else {
+                    const newCount = data.count + 1;
+                    await supabaseClient.from('visitors').update({ count: newCount }).eq('id', data.id);
+                    document.getElementById('visitorCount').innerText = newCount;
+                }
+            } catch (err) {
+                console.log("Counter Error:", err);
+                document.getElementById('visitorCount').innerText = "---";
+            }
+        }
     </script>
 </body>
 </html>
